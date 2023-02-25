@@ -24,24 +24,27 @@ function App() {
     setNoteDeleted(true);
   };
 
-  /*const editTitle = (field, val) => {
+  const editTitle = (val) => {
     const edited = sidebar.map((note) => {
-      if (note.id === id) {
+      if (note.id === active) {
         return {
           ...note,
-          [field]: val,
+          "title": val,
         }
       }
       else {
         return note;
       };
     });
-    console.log(edited);
-    if (save) {
-      setSidebar(edited);
-      console.log("saved")
-    } 
-  };*/
+    const old = localStorage.getItem("notes");
+    setSidebar(edited);
+    edited.map((note) => {
+      if (note.id === active && note.title == "") {
+        note.title = "Untilted Note";
+      }
+    })
+  };
+
 
   const textChange = (userInput) => {
     setText(userInput);
@@ -101,11 +104,10 @@ function App() {
       }
       setNoteDeleted(false);
     }
-  }, [ noteDeleted]);
+  }, [noteDeleted]);
 
   useEffect(() => {
     localStorage.setItem('notes', JSON.stringify(sidebar));
-    console.log( JSON.parse(localStorage.getItem('notes')))
   }, [sidebar])
 
   return (<>
@@ -152,7 +154,7 @@ function App() {
                 ) : (
                   <div className="main">
                     <div className="editing-menu">
-                      <input type="text" id="note-title" placeholder="Note Title" onChange={() => editTitle())} value={note.title} autoFocus></input>
+                      <input type="text" id="note-title" placeholder="Note Title" onChange={(e) => editTitle(e.target.value)} value={note.title} autoFocus></input>
                       <button onClick={() => { setEdit(false); setSave(true) }}>save</button>
                       <button onClick={() => confirm(note.id)}>delete</button>
                       <input type="datetime-local" />
