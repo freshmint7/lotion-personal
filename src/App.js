@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
-import { json } from "react-router-dom";
 
 function App() {
   const [sidebar, setSidebar] = useState([]);
@@ -10,10 +9,12 @@ function App() {
   const [active, setActive] = useState(false);
   const [edit, setEdit] = useState(true);
   const [save, setSave] = useState(false);
+
+  const [title, setTitle] = useState("");
   const [text, setText] = useState("");
 
   const addNote = () => {
-    const newNote = { id: uuidv4(), title: "New", body: "" };
+    const newNote = { id: uuidv4(), title: "New", body: "", date: Date.now() };
     setSidebar([newNote, ...sidebar]);
     setActive(newNote.id);
   };
@@ -24,36 +25,42 @@ function App() {
     setNoteDeleted(true);
   };
 
-  const editTitle = (val) => {
+  const titleChange = (userInput) => {
+    setTitle(userInput);
+    setSave(true);
+  }
+
+  const textChange = (userInput) => {
+    setText(userInput);
+    console.log(text);
+    setSave(true);
+  }
+
+  const saveChanges = () => {
+    if (!save) {
+      return;
+    }
+
     const edited = sidebar.map((note) => {
       if (note.id === active) {
         return {
           ...note,
-          "title": val,
+          "title": title,
+          "body": text.substring(3, text.length-4),
         }
       }
       else {
         return note;
       };
     });
-    const old = localStorage.getItem("notes");
     setSidebar(edited);
-    edited.map((note) => {
-      if (note.id === active && note.title == "") {
-        note.title = "Untilted Note";
-      }
-    })
-  };
-
-
-  const textChange = (userInput) => {
-    setText(userInput);
+    setSave(false);
   }
 
   const hide = () => {
     const side = document.getElementById("sidebar");
     const notelist = document.getElementsByClassName("main-note");
-    const notetitle = document.getElementsByClassName("main-note-title");
+    const notetitle = document.getElementsByClassName("main-note-preview");
 
     if (side.style.display === "none") {
       side.style.display = "";
@@ -107,8 +114,14 @@ function App() {
   }, [noteDeleted]);
 
   useEffect(() => {
-    localStorage.setItem('notes', JSON.stringify(sidebar));
-  }, [sidebar])
+    for (let i = 0; i < sidebar.length; i++) {
+      if (sidebar[i].id === active) {
+        setText(sidebar[i].body);
+        setTitle(sidebar[i].title);
+      }
+    }
+    console.log(text, title);
+  }, [active])
 
   return (<>
     <hr />
@@ -127,7 +140,7 @@ function App() {
           <button id="add" onClick={addNote}>+</button>
           <div className="unactive">No notes yet</div>
         </div>
-        <div className="unactive">No notes, please create a new one</div>
+        <div className="unactive-body">No notes, please create a new one</div>
       </div>
     ) : (
       <div id="cols">
@@ -137,27 +150,30 @@ function App() {
         </div>
         <div className="note-list">
           {sidebar.map((note) => (
-            <div className={`main-note ${note.id === active ? "active" : ""}`} key={note.id} onClick={() => setActive(note.id)}>
-              <div className="main-note-title">
-                <strong>{note.title}</strong></div>
+            <div className={`main-note ${note.id === active ? "active" : ""}`} key={note.id} onClick={() => { setActive(note.id) }}>
+              <div className="main-note-preview">
+                <strong>{note.title}</strong>
+                <p>{note.body.substr(0, 100) + "..."}</p>
+                <p>{formatDate(note.date)}</p>
+              </div>
               {note.id === active && (
                 !edit ? (
                   <div className="main">
                     <div className="editing-menu">
                       <input readOnly={true} type="text" id="note-title" placeholder="Note Title" value={note.title}></input>
-                      <button onClick={() => { setEdit(true); setSave(false) }}>edit</button>
+                      <button onClick={() => { setEdit(true) }}>edit</button>
                       <button onClick={() => confirm(note.id)}>delete</button>
-                      <input type="datetime-local" />
+                      <input type="datetime-local" defaultValue={(new Date(note.date)).toISOString().slice(0, 19)} />
                       <ReactQuill readOnly={true} theme="snow" value={note.body} placeholder="Type your note here."></ReactQuill>
                     </div>
                   </div>
                 ) : (
                   <div className="main">
                     <div className="editing-menu">
-                      <input type="text" id="note-title" placeholder="Note Title" onChange={(e) => editTitle(e.target.value)} value={note.title} autoFocus></input>
-                      <button onClick={() => { setEdit(false); setSave(true) }}>save</button>
+                      <input type="text" id="note-title" placeholder="Note Title" onChange={(e) => titleChange(e.target.value)} value={title} autoFocus></input>
+                      <button onClick={() => { setEdit(false); saveChanges(); note.date = Date.now() }}>save</button>
                       <button onClick={() => confirm(note.id)}>delete</button>
-                      <input type="datetime-local" />
+                      <input type="datetime-local" defaultValue={(new Date(note.date)).toISOString().slice(0, 19)} />
                       <ReactQuill theme="snow" value={text} onChange={textChange} placeholder="Type your note here."></ReactQuill>
                     </div>
                   </div>
@@ -170,5 +186,13 @@ function App() {
     )}
   </>)
 }
+
+// DATETIME DOES NOT CHANGE ON SAVE IMMEDIATELY, IF RELOADED IT CHANGES BASED ON SAVE. FIX THAT
+
+// TO DO: 
+// LOCAL STORAGEG
+// FIX DATETIME
+// CSS
+// ROUTING
 
 export default App;
