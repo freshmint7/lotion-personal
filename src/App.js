@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { v4 as uuidv4 } from 'uuid';
+import React, { useState, useEffect, StrictMode } from "react";
+import { stringify, v4 as uuidv4 } from 'uuid';
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
 
 function App() {
-  const [sidebar, setSidebar] = useState([]);
+  const [sidebar, setSidebar] = useState([])
   const [noteDeleted, setNoteDeleted] = useState(false);
+  const [noteAdded, setNoteAdded] = useState(false);
   const [active, setActive] = useState(false);
   const [edit, setEdit] = useState(true);
   const [save, setSave] = useState(false);
@@ -13,10 +14,22 @@ function App() {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
 
+  useEffect(() => {
+    const loadData = () => {
+      const stored = JSON.parse(localStorage.getItem("notes"));
+      if (stored.length > 0) {
+        setSidebar(stored);
+        setActive(stored[0].id);
+      }
+    }
+    loadData();
+  }, [])
+
   const addNote = () => {
     const newNote = { id: uuidv4(), title: "New", body: "", date: Date.now() };
     setSidebar([newNote, ...sidebar]);
     setActive(newNote.id);
+    setNoteAdded(true);
   };
 
   const delNote = (id) => {
@@ -32,7 +45,6 @@ function App() {
 
   const textChange = (userInput) => {
     setText(userInput);
-    console.log(text);
     setSave(true);
   }
 
@@ -40,13 +52,13 @@ function App() {
     if (!save) {
       return;
     }
-
     const edited = sidebar.map((note) => {
       if (note.id === active) {
         return {
           ...note,
           "title": title,
-          "body": text.substring(3, text.length-4),
+          "body": text.substring(3, text.length - 4),
+          "date": Date.now(),
         }
       }
       else {
@@ -55,6 +67,7 @@ function App() {
     });
     setSidebar(edited);
     setSave(false);
+    localStorage.setItem("notes", JSON.stringify(sidebar))
   }
 
   const hide = () => {
@@ -110,6 +123,7 @@ function App() {
         setActive(false);
       }
       setNoteDeleted(false);
+      localStorage.setItem("notes", JSON.stringify(sidebar))
     }
   }, [noteDeleted]);
 
@@ -120,8 +134,15 @@ function App() {
         setTitle(sidebar[i].title);
       }
     }
-    console.log(text, title);
   }, [active])
+
+  useEffect(() => {
+    if (noteAdded){
+      localStorage.setItem("notes", JSON.stringify(sidebar));
+      setNoteAdded(false);
+    }
+  }, [noteAdded])
+
 
   return (<>
     <hr />
@@ -171,7 +192,7 @@ function App() {
                   <div className="main">
                     <div className="editing-menu">
                       <input type="text" id="note-title" placeholder="Note Title" onChange={(e) => titleChange(e.target.value)} value={title} autoFocus></input>
-                      <button onClick={() => { setEdit(false); saveChanges(); note.date = Date.now() }}>save</button>
+                      <button onClick={() => { setEdit(false); saveChanges(); }}>save</button>
                       <button onClick={() => confirm(note.id)}>delete</button>
                       <input type="datetime-local" defaultValue={(new Date(note.date)).toISOString().slice(0, 19)} />
                       <ReactQuill theme="snow" value={text} onChange={textChange} placeholder="Type your note here."></ReactQuill>
