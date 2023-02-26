@@ -1,5 +1,5 @@
 import React, { useState, useEffect, StrictMode } from "react";
-import { stringify, v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
 
@@ -10,6 +10,7 @@ function App() {
   const [active, setActive] = useState(false);
   const [edit, setEdit] = useState(true);
   const [save, setSave] = useState(false);
+  const [date, setDate] = useState(Date.now());
 
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
@@ -46,6 +47,7 @@ function App() {
   const textChange = (userInput) => {
     setText(userInput);
     setSave(true);
+    setDate(Date.now());
   }
 
   const saveChanges = () => {
@@ -58,7 +60,7 @@ function App() {
           ...note,
           "title": title,
           "body": text.substring(3, text.length - 4),
-          "date": Date.now(),
+          "date": date,
         }
       }
       else {
@@ -67,7 +69,7 @@ function App() {
     });
     setSidebar(edited);
     setSave(false);
-    localStorage.setItem("notes", JSON.stringify(sidebar))
+    setNoteAdded(true);
   }
 
   const hide = () => {
@@ -194,7 +196,7 @@ function App() {
                       <input type="text" id="note-title" placeholder="Note Title" onChange={(e) => titleChange(e.target.value)} value={title} autoFocus></input>
                       <button onClick={() => { setEdit(false); saveChanges(); }}>save</button>
                       <button onClick={() => confirm(note.id)}>delete</button>
-                      <input type="datetime-local" defaultValue={(new Date(note.date)).toISOString().slice(0, 19)} />
+                      <input type="datetime-local" defaultValue={(new Date(note.date)).toISOString().slice(0, 19)} onChange={(e) => setDate(e.target.value)} />
                       <ReactQuill theme="snow" value={text} onChange={textChange} placeholder="Type your note here."></ReactQuill>
                     </div>
                   </div>
@@ -208,11 +210,8 @@ function App() {
   </>)
 }
 
-// DATETIME DOES NOT CHANGE ON SAVE IMMEDIATELY, IF RELOADED IT CHANGES BASED ON SAVE. FIX THAT
-
 // TO DO: 
-// LOCAL STORAGEG
-// FIX DATETIME
+
 // CSS
 // ROUTING
 
