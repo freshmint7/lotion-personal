@@ -2,6 +2,7 @@ import React, { useState, useEffect, StrictMode } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
+import { Link, useNavigate } from 'react-router-dom';
 
 function App() {
   const [sidebar, setSidebar] = useState([])
@@ -18,7 +19,7 @@ function App() {
   useEffect(() => {
     const loadData = () => {
       const stored = JSON.parse(localStorage.getItem("notes"));
-      if (stored.length > 0) {
+      if (Array.isArray(stored) && stored.length > 0) {
         setSidebar(stored);
         setActive(stored[0].id);
       }
@@ -67,6 +68,8 @@ function App() {
         return note;
       };
     });
+    console.log(date);
+    console.log("joe");
     setSidebar(edited);
     setSave(false);
     setNoteAdded(true);
@@ -184,7 +187,7 @@ function App() {
                   <div className="main">
                     <div className="editing-menu">
                       <input readOnly={true} type="text" id="note-title" placeholder="Note Title" value={note.title}></input>
-                      <button onClick={() => { setEdit(true) }}>edit</button>
+                      <button onClick={() => { setEdit(true); setSave(true) }}>edit</button>
                       <button onClick={() => confirm(note.id)}>delete</button>
                       <input type="datetime-local" defaultValue={(new Date(note.date)).toISOString().slice(0, 19)} />
                       <ReactQuill readOnly={true} theme="snow" value={note.body} placeholder="Type your note here."></ReactQuill>
