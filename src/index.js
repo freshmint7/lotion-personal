@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import Sidebar from './Sidebar';
+import Content from './Content';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 

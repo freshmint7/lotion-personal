@@ -1,17 +1,17 @@
-import React, { useState, useEffect, StrictMode } from "react";
+import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import ReactQuill from "react-quill";
-import 'react-quill/dist/quill.snow.css';
-import { Link, useNavigate } from 'react-router-dom';
+import Sidebar from "./Sidebar";
+import { Link } from 'react-router-dom';
 
 function App() {
-  const [sidebar, setSidebar] = useState([])
+  const [sidebar, setSidebar] = useState([]);
   const [noteDeleted, setNoteDeleted] = useState(false);
   const [noteAdded, setNoteAdded] = useState(false);
   const [active, setActive] = useState(false);
   const [edit, setEdit] = useState(true);
   const [save, setSave] = useState(false);
   const [date, setDate] = useState(Date.now());
+  const [index, setIndex] = useState([]);
 
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
@@ -27,8 +27,17 @@ function App() {
     loadData();
   }, [])
 
+  useEffect(() => {
+    const entries = [];
+    for (let i = 0; i < sidebar.length; i++) {
+      let newEntry = { id: sidebar[i].id, index: i }
+      entries.push(newEntry)
+    }
+    setIndex(entries);
+  }, [sidebar])
+
   const addNote = () => {
-    const newNote = { id: uuidv4(), title: "New", body: "", date: Date.now() };
+    const newNote = { id: uuidv4(), title: "Untitled Note", body: "", date: Date.now() };
     setSidebar([newNote, ...sidebar]);
     setActive(newNote.id);
     setNoteAdded(true);
@@ -57,6 +66,14 @@ function App() {
     }
     const edited = sidebar.map((note) => {
       if (note.id === active) {
+        if (title === "") {
+          return {
+            ...note,
+            "title": "Untitled Note",
+            "body": text.substring(3, text.length - 4),
+            "date": date,
+          }
+        }
         return {
           ...note,
           "title": title,
@@ -68,15 +85,13 @@ function App() {
         return note;
       };
     });
-    console.log(date);
-    console.log("joe");
     setSidebar(edited);
     setSave(false);
     setNoteAdded(true);
   }
 
   const hide = () => {
-    const side = document.getElementById("sidebar");
+    const side = document.getElementById("aside");
     const notelist = document.getElementsByClassName("main-note");
     const notetitle = document.getElementsByClassName("main-note-preview");
 
@@ -142,12 +157,13 @@ function App() {
   }, [active])
 
   useEffect(() => {
-    if (noteAdded){
+    if (noteAdded) {
       localStorage.setItem("notes", JSON.stringify(sidebar));
       setNoteAdded(false);
     }
   }, [noteAdded])
 
+  const link = edit ? '/edit' : '';
 
   return (<>
     <hr />
@@ -160,62 +176,22 @@ function App() {
     </div>
     <hr />
     {!active ? (
-      <div className="unactive-flex">
-        <div id="sidebar">
-          <h2 id="head">Notes</h2>
-          <button id="add" onClick={addNote}>+</button>
+      <div id="cols">
+        <div id="aside">
+          <div id="sidebar">
+            <p id="head"><strong>Notes</strong></p>
+            <Link to={`/note/1${link}`}>
+              <button id="add" onClick={addNote}>+</button>
+            </Link>
+          </div>
           <div className="unactive">No notes yet</div>
         </div>
         <div className="unactive-body">No notes, please create a new one</div>
       </div>
     ) : (
-      <div id="cols">
-        <div id="sidebar">
-          <h2 id="head">Notes</h2>
-          <button id="add" onClick={addNote}>+</button>
-        </div>
-        <div className="note-list">
-          {sidebar.map((note) => (
-            <div className={`main-note ${note.id === active ? "active" : ""}`} key={note.id} onClick={() => { setActive(note.id) }}>
-              <div className="main-note-preview">
-                <strong>{note.title}</strong>
-                <p>{note.body.substr(0, 100) + "..."}</p>
-                <p>{formatDate(note.date)}</p>
-              </div>
-              {note.id === active && (
-                !edit ? (
-                  <div className="main">
-                    <div className="editing-menu">
-                      <input readOnly={true} type="text" id="note-title" placeholder="Note Title" value={note.title}></input>
-                      <button onClick={() => { setEdit(true); setSave(true) }}>edit</button>
-                      <button onClick={() => confirm(note.id)}>delete</button>
-                      <input type="datetime-local" defaultValue={(new Date(note.date)).toISOString().slice(0, 19)} />
-                      <ReactQuill readOnly={true} theme="snow" value={note.body} placeholder="Type your note here."></ReactQuill>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="main">
-                    <div className="editing-menu">
-                      <input type="text" id="note-title" placeholder="Note Title" onChange={(e) => titleChange(e.target.value)} value={title} autoFocus></input>
-                      <button onClick={() => { setEdit(false); saveChanges(); }}>save</button>
-                      <button onClick={() => confirm(note.id)}>delete</button>
-                      <input type="datetime-local" defaultValue={(new Date(note.date)).toISOString().slice(0, 19)} onChange={(e) => setDate(e.target.value)} />
-                      <ReactQuill theme="snow" value={text} onChange={textChange} placeholder="Type your note here."></ReactQuill>
-                    </div>
-                  </div>
-                )
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+      <Sidebar sidebar={sidebar} formatDate={formatDate} setActive={setActive} active={active} edit={edit} setEdit={setEdit} setSave={setSave} confirm={confirm} saveChanges={saveChanges} text={text} textChange={textChange} title={title} titleChange={titleChange} setDate={setDate} index={index} addNote={addNote} />
     )}
   </>)
 }
-
-// TO DO: 
-
-// CSS
-// ROUTING
 
 export default App;
