@@ -48,7 +48,7 @@ hr:nth-of-type(1) {
 }
 
 #menu:hover {
-  background: #C5C5C5;
+  background: #8adbd6;
 }
 
 .active {
@@ -87,6 +87,15 @@ hr:nth-of-type(1) {
   align-self: center;
   font-size: 1em;
   background: inherit;
+  padding: 12px 25px 12px 25px;
+}
+
+#add:hover {
+  background: #8adbd6;
+}
+
+.main-note:hover {
+  background: #8adbd6;
 }
 
 .unactive {
@@ -170,7 +179,7 @@ hr:nth-of-type(1) {
 .date {
   padding-top: 5px;
   padding-left: 20px;
-  width: 50%;
+  width: 35%;
 }
 
 .displaydate {
@@ -187,7 +196,7 @@ hr:nth-of-type(1) {
 }
 
 .del:hover {
-  background: #C5C5C5;
+  background: #8adbd6;
 }
 
 .textbox {
