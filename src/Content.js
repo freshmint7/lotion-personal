@@ -20,7 +20,7 @@ const Content = ({
 			<div className="editing-menu">
 				<div className="title-date">
 					<input type="text" id="note-title" placeholder="Note Title" onChange={(e) => titleChange(e.target.value)} value={title} autoFocus></input>
-					<input className="edit-button date" type="datetime-local" defaultValue={(new Date(note.date - 25200000)).toISOString().slice(0, 19)} onChange={(e) => setDate(e.target.value)} />
+					<input className="edit-button date" type="datetime-local" defaultValue={(new Date(note.date - 25200000)).toISOString().slice(0, 19)} onChange={(e) => setDate(Date.parse(e.target.value))} />
 				</div>
 				<div className="buttons">
 					<Link to={`/note/${getNoteIndex(note)}`}>
