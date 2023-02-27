@@ -59,7 +59,7 @@ const Sidebar = ({
 				{sidebar.map((note) => (
 					note.id === active && (
 						!edit ? (
-							<div className="main" >
+							<div key={note.id} className="main" >
 								<div className="editing-menu">
 									<div className="title-date">
 										<p id="note-title"><strong>{note.title}</strong></p>
@@ -75,7 +75,7 @@ const Sidebar = ({
 								<ReactQuill className="textbox" modules={{ toolbar: false }} readOnly={true} value={text} onChange={textChange}></ReactQuill>
 							</div>
 						) : (
-							<Content note={note} title={title} titleChange={titleChange} setEdit={setEdit} saveChanges={saveChanges} confirm={confirm} setDate={setDate} text={text} textChange={textChange} getNoteIndex={getNoteIndex} />
+							<Content key={note.id} note={note} title={title} titleChange={titleChange} setEdit={setEdit} saveChanges={saveChanges} confirm={confirm} setDate={setDate} text={text} textChange={textChange} getNoteIndex={getNoteIndex} />
 						)
 					)
 				))}
