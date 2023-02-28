@@ -66,8 +66,8 @@ const Sidebar = ({
 										<p id="pre-date" className="displaydate">{formatDate(note.date)}</p>
 									</div>
 									<div className="buttons">
-										<Link to={`/note/${getNoteIndex(note)}/edit`}>
-											<button className="edit-button del" onClick={() => { setEdit(true); setSave(true) }}>Edit</button>
+										<Link to={`/note/${getNoteIndex(note)}/edit`} className="edit-button del">
+											<button className="edit-button del center" onClick={() => { setEdit(true); setSave(true) }}>Edit</button>
 										</Link>
 										<button className="edit-button del" onClick={() => confirm(note.id)}>Delete</button>
 									</div>

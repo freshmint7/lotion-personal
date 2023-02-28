@@ -23,8 +23,8 @@ const Content = ({
 					<input className="edit-button date" type="datetime-local" defaultValue={(new Date(note.date - 25200000)).toISOString().slice(0, 19)} onChange={(e) => setDate(Date.parse(e.target.value))} />
 				</div>
 				<div className="buttons">
-					<Link to={`/note/${getNoteIndex(note)}`}>
-						<button className="edit-button del" onClick={() => { setEdit(false); saveChanges(); }}>Save</button>
+					<Link to={`/note/${getNoteIndex(note)}`} className="edit-button del">
+						<button className="edit-button del center" onClick={() => { setEdit(false); saveChanges(); }}>Save</button>
 					</Link>
 					<button className="edit-button del" onClick={() => confirm(note.id)}>Delete</button>
 				</div>
