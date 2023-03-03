@@ -145,7 +145,7 @@ function App() {
       setNoteDeleted(false);
       localStorage.setItem("notes", JSON.stringify(sidebar))
     }
-  }, [noteDeleted], [sidebar]);
+  }, [noteDeleted, sidebar]);
 
   useEffect(() => {
     for (let i = 0; i < sidebar.length; i++) {
@@ -154,14 +154,14 @@ function App() {
         setTitle(sidebar[i].title);
       }
     }
-  }, [active], [sidebar])
+  }, [active, sidebar])
 
   useEffect(() => {
     if (noteAdded) {
       localStorage.setItem("notes", JSON.stringify(sidebar));
       setNoteAdded(false);
     }
-  }, [noteAdded], [sidebar])
+  }, [noteAdded, sidebar])
 
   const link = edit ? '/edit' : '';
 
